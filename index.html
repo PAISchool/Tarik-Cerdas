@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Tarik Cerdas</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <!-- Google Fonts: Fredoka -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      font-family: 'Fredoka', cursive, sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+    
+    .rope-line {
+      height: 14px;
+      background: repeating-linear-gradient(45deg, #8B4513, #8B4513 12px, #A0522D 12px, #A0522D 24px);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      border-radius: 6px;
+    }
+
+    .opt-btn-0 { background-color: #ef4444; border-color: #dc2626; box-shadow: 0 5px 0 #b91c1c; }
+    .opt-btn-1 { background-color: #3b82f6; border-color: #2563eb; box-shadow: 0 5px 0 #1d4ed8; }
+    .opt-btn-2 { background-color: #eab308; border-color: #ca8a04; box-shadow: 0 5px 0 #a16207; }
+    .opt-btn-3 { background-color: #22c55e; border-color: #16a34a; box-shadow: 0 5px 0 #15803d; }
+
+    .opt-btn-0:active { box-shadow: 0 1px 0 #b91c1c !important; transform: translateY(4px); }
+    .opt-btn-1:active { box-shadow: 0 1px 0 #1d4ed8 !important; transform: translateY(4px); }
+    .opt-btn-2:active { box-shadow: 0 1px 0 #a16207 !important; transform: translateY(4px); }
+    .opt-btn-3:active { box-shadow: 0 1px 0 #15803d !important; transform: translateY(4px); }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    .animate-float { animation: float 3s ease-in-out infinite; }
+  </style>
+</head>
+<body class="bg-amber-100 h-screen w-screen overflow-hidden flex flex-col">
+  <!-- Tambahkan Google Font Amiri untuk Teks Arab yang Jelas -->
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+</style>
+
+<style>
+/* === ANIMASI KARAKTER & AURA === */
+  /* 1. Animasi Gerak Bernapas (Idle) */
+  @keyframes charFloat {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-6px); }
+  }
+  .animate-char-idle {
+    animation: charFloat 2.5s ease-in-out infinite;
+  }
+
+  /* 2. Animasi Menarik Tali saat Jawab BENAR */
+  @keyframes pullSuccess {
+    0% { transform: scale(1) rotate(0deg); }
+    30% { transform: scale(1.15) rotate(-10deg) translateX(-10px); }
+    60% { transform: scale(1.05) rotate(5deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  .animate-pull {
+    animation: pullSuccess 0.6s ease-in-out;
+  }
+
+  /* 3. Animasi Terseret/Terguncang saat Jawab SALAH */
+  @keyframes stumbleWrong {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(8px) rotate(5deg); }
+    40% { transform: translateX(-6px) rotate(-5deg); }
+    60% { transform: translateX(4px); }
+    80% { transform: translateX(-2px); }
+  }
+  .animate-stumble {
+    animation: stumbleWrong 0.5s ease-in-out;
+  }
+
+  /* 4. Aura Bersinar untuk Player yang Sedang Giliran */
+  .active-turn-glow {
+    filter: drop-shadow(0 0 10px #f59e0b) drop-shadow(0 0 18px #fbbf24);
+  }
+<style>
+  * {
+    font-family: 'Fredoka', cursive, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+  }
+  
+  /* Class khusus untuk Teks Arab PAI */
+  .font-arabic {
+    font-family: 'Amiri', serif;
+    line-height: 1.8;
+  }
+
+  .rope-line {
+    height: 14px;
+    background: repeating-linear-gradient(45deg, #8B4513, #8B4513 12px, #A0522D 12px, #A0522D 24px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    border-radius: 6px;
+  }
+
+  .opt-btn-0 { background-color: #ef4444; border-color: #dc2626; box-shadow: 0 5px 0 #b91c1c; }
+  .opt-btn-1 { background-color: #3b82f6; border-color: #2563eb; box-shadow: 0 5px 0 #1d4ed8; }
+  .opt-btn-2 { background-color: #eab308; border-color: #ca8a04; box-shadow: 0 5px 0 #a16207; }
+  .opt-btn-3 { background-color: #22c55e; border-color: #16a34a; box-shadow: 0 5px 0 #15803d; }
+
+  .opt-btn-0:active { box-shadow: 0 1px 0 #b91c1c !important; transform: translateY(4px); }
+  .opt-btn-1:active { box-shadow: 0 1px 0 #1d4ed8 !important; transform: translateY(4px); }
+  .opt-btn-2:active { box-shadow: 0 1px 0 #a16207 !important; transform: translateY(4px); }
+  .opt-btn-3:active { box-shadow: 0 1px 0 #15803d !important; transform: translateY(4px); }
+</style>
+
+  <!-- ================= POPUP PETUNJUK AWAL ================= -->
+<div id="infoModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-6 border-8 border-amber-400 text-center relative overflow-hidden">
+    
+    <!-- Badge Icon Header -->
+    <div class="flex flex-col items-center mb-4">
+      <div class="w-16 h-16 bg-amber-100 border-4 border-amber-400 rounded-2xl flex items-center justify-center text-3xl shadow-md mb-2">
+        📜
+      </div>
+      <h2 class="text-2xl font-black text-amber-900 tracking-wide uppercase">PETUNJUK PERMAINAN</h2>
+    </div>
+    
+    <!-- List Kartu Petunjuk -->
+    <div class="space-y-3 mb-6 text-left">
+      <div class="bg-amber-50 p-3.5 rounded-2xl border border-amber-200 flex items-center space-x-3 shadow-sm">
+        <div class="text-2xl p-2 bg-white rounded-xl shadow-xs">🎯</div>
+        <div>
+          <h4 class="font-bold text-amber-950 text-sm">Tujuan Permainan</h4>
+          <p class="text-xs text-amber-800 leading-snug">Tarik tali ke area tim kamu dengan menjawab soal secepat dan setepat mungkin!</p>
+        </div>
+      </div>
+
+      <div class="bg-amber-50 p-3.5 rounded-2xl border border-amber-200 flex items-center space-x-3 shadow-sm">
+        <div class="text-2xl p-2 bg-white rounded-xl shadow-xs">💡</div>
+        <div>
+          <h4 class="font-bold text-amber-950 text-sm">Belajar dari Kesalahan</h4>
+          <p class="text-xs text-amber-800 leading-snug">Jika menjawab salah, baca petunjuk singkat yang muncul di panel kamu!</p>
+        </div>
+      </div>
+
+      <div class="bg-amber-50 p-3.5 rounded-2xl border border-amber-200 flex items-center space-x-3 shadow-sm">
+        <div class="text-2xl p-2 bg-white rounded-xl shadow-xs">⏳</div>
+        <div>
+          <h4 class="font-bold text-amber-950 text-sm">Batas Waktu</h4>
+          <p class="text-xs text-amber-800 leading-snug">Durasi permainan adalah <b>2 Menit (120 Detik)</b>.</p>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="closeInfoModal()" class="w-full py-4 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-extrabold text-xl rounded-2xl shadow-[0_6px_0_#b45309] active:shadow-[0_2px_0_#b45309] active:translate-y-1 transition">
+      SIAP, LANJUTKAN! ➔
+    </button>
+  </div>
+</div>
+
+  <!-- ================= POPUP SETTINGS GURU ================= -->
+<div id="setupModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl p-6 border-8 border-amber-400 flex flex-col justify-between">
+    <div>
+      <h2 class="text-3xl font-black text-center text-amber-800 mb-5 uppercase tracking-wide">🎮 PENGATURAN GAME</h2>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-base font-bold text-gray-700 mb-1">📚 Mata Pelajaran:</label>
+          <select id="selectMapel" class="w-full p-3 border-4 border-amber-300 rounded-2xl focus:outline-none focus:border-amber-500 text-base font-bold bg-amber-50 cursor-pointer">
+            <option value="">-- Semua Mata Pelajaran --</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-base font-bold text-gray-700 mb-1">🏫 Kelas:</label>
+            <select id="selectKelas" class="w-full p-3 border-4 border-amber-300 rounded-2xl focus:outline-none focus:border-amber-500 text-base font-bold bg-amber-50 cursor-pointer">
+              <option value="">-- Semua Kelas --</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-base font-bold text-gray-700 mb-1">📖 Elemen / Materi:</label>
+            <select id="selectElemen" class="w-full p-3 border-4 border-amber-300 rounded-2xl focus:outline-none focus:border-amber-500 text-base font-bold bg-amber-50 cursor-pointer">
+              <option value="">-- Semua Elemen --</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4 pt-1">
+          <div class="bg-blue-50 p-3 rounded-2xl border-2 border-blue-300 text-center">
+            <label class="block text-sm font-extrabold text-blue-900 mb-1">Player 1 (Kiri)</label>
+            <select id="selectP1" class="w-full p-2 border-2 border-blue-300 rounded-xl text-sm font-bold bg-white mb-1 cursor-pointer"></select>
+          </div>
+          <div class="bg-red-50 p-3 rounded-2xl border-2 border-red-300 text-center">
+            <label class="block text-sm font-extrabold text-red-900 mb-1">Player 2 (Kanan)</label>
+            <select id="selectP2" class="w-full p-2 border-2 border-red-300 rounded-xl text-sm font-bold bg-white mb-1 cursor-pointer"></select>
+          </div>
+        </div>
+
+        <button onclick="startGame()" class="w-full mt-3 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-2xl rounded-2xl shadow-[0_6px_0_#15803d] active:shadow-[0_2px_0_#15803d] active:translate-y-1 transition">
+          🚀 MULAI PERMAINAN
+        </button>
+      </div>
+    </div>
+
+    <!-- FOOTNOTE / CATATAN KAKI -->
+    <div class="mt-5 pt-3 border-t-2 border-gray-100 text-center text-xs text-gray-400 leading-relaxed font-semibold">
+      <p class="text-amber-900 font-extrabold text-xs">🎮 Tarik Cerdas: Game Asesmen PAI Interaktif</p>
+      <p>Media Pembelajaran PAI oleh Tim Modul PAI</p>
+      <p>© 2026 Hak Cipta Dilindungi • KKG PAI Kab. Pasuruan</p>
+    </div>
+  </div>
+</div>
+
+  <!-- ================= POPUP FEEDBACK / UMPAN BALIK INSTAN ================= -->
+  <div id="feedbackModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-5 border-4 border-amber-400 text-center relative animate-bounce-short">
+      <div id="feedbackIcon" class="text-4xl mb-1">💡</div>
+      <h3 id="feedbackTitle" class="text-2xl font-black text-amber-900 mb-2">Hampir Betul!</h3>
+      
+      <div id="feedbackContent" class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-sm font-bold text-gray-700 mb-4 shadow-inner">
+        <!-- Teks pembahasan akan diisi secara dinamis -->
+      </div>
+
+      <button onclick="closeFeedbackModal()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-lg rounded-xl shadow-[0_4px_0_#b45309] active:translate-y-0.5 transition">
+        SAYA PAHAM! 👍
+      </button>
+    </div>
+  </div>
+
+  <!-- ================= OVERLAY COUNTDOWN ================= -->
+  <div id="countdownOverlay" class="hidden fixed inset-0 bg-black/85 z-40 flex items-center justify-center">
+    <div id="countdownText" class="text-9xl font-black text-amber-400 drop-shadow-[0_10px_0_#b45309] animate-bounce">3</div>
+  </div>
+
+  <!-- ================= ARENA TARIK TAMBANG (ATAS) ================= -->
+  <div class="h-2/5 bg-gradient-to-b from-sky-400 via-sky-200 to-emerald-200 relative overflow-hidden flex flex-col justify-between border-b-8 border-amber-900 shadow-md">
+    <div class="absolute top-2 left-10 text-white/70 text-4xl animate-float">☁️</div>
+    <div class="absolute top-4 right-16 text-white/70 text-5xl animate-float" style="animation-delay: 1.5s;">☁️</div>
+
+    <div class="flex justify-between items-center p-3 z-10 font-black text-xl">
+      <div class="bg-blue-600 text-white px-6 py-2 rounded-2xl border-4 border-blue-300 shadow-[0_4px_0_#1d4ed8]">PLAYER 1: <span id="scoreP1">0</span></div>
+      
+      <div class="bg-amber-500 text-white px-6 py-1.5 rounded-2xl border-4 border-amber-300 shadow-[0_4px_0_#b45309] text-center">
+        <div class="text-xs uppercase tracking-wider text-amber-100">WAKTU</div>
+        <div id="timerText" class="text-2xl font-black tracking-widest text-yellow-200">02:00</div>
+      </div>
+
+      <div class="bg-red-600 text-white px-6 py-2 rounded-2xl border-4 border-red-300 shadow-[0_4px_0_#b91c1c]">PLAYER 2: <span id="scoreP2">0</span></div>
+    </div>
+
+    <div class="relative w-full h-32 flex items-center justify-center">
+      <div class="absolute w-1.5 h-full bg-red-500/70 z-0"></div>
+      <div class="absolute left-12 h-full w-2 bg-amber-400/80 border-dashed border-r-2 border-amber-800"></div>
+      <div class="absolute right-12 h-full w-2 bg-amber-400/80 border-dashed border-l-2 border-amber-800"></div>
+
+      <div id="tugGroup" class="absolute flex items-center transition-all duration-300 ease-out" style="transform: translateX(0px);">
+        <img id="imgP1" src="https://api.dicebear.com/7.x/bottts/svg?seed=P1" class="w-24 h-24 transform -scale-x-100 filter drop-shadow-lg">
+        <div class="w-72 rope-line relative flex items-center justify-center">
+          <div class="w-4 h-7 bg-red-600 rounded-sm border-2 border-white shadow-md"></div>
+        </div>
+        <img id="imgP2" src="https://api.dicebear.com/7.x/bottts/svg?seed=P2" class="w-24 h-24 filter drop-shadow-lg">
+      </div>
+    </div>
+
+    <div class="h-6 bg-emerald-500 w-full border-t-4 border-emerald-600 flex items-center justify-around text-emerald-700 text-xs font-black">
+      <span>🌱</span><span>🌱</span><span>🌱</span><span>🌱</span><span>🌱</span><span>🌱</span><span>🌱</span><span>🌱</span>
+    </div>
+  </div>
+
+  <!-- ================= SPLIT SCREEN SOAL & TOMBOL (BAWAH) ================= -->
+  <div class="h-3/5 grid grid-cols-2 gap-3 p-3 bg-amber-200/60">
+    
+    <!-- PANEL PLAYER 1 (KIRI) -->
+<div class="bg-blue-100 border-4 border-blue-400 rounded-3xl p-3 flex flex-col justify-between shadow-lg relative overflow-hidden">
+  <div class="text-blue-900 font-black text-lg flex justify-between items-center">
+    <span>PLAYER 1</span>
+    <span id="p1Status" class="text-xs bg-blue-300 text-blue-900 px-3 py-1 rounded-full font-bold">Siap</span>
+  </div>
+
+  <!-- Area Soal -->
+  <div id="p1QuestionBox" class="bg-white p-3 rounded-2xl border-2 border-blue-200 flex-1 flex items-center justify-center overflow-auto text-center font-extrabold text-gray-800 text-xl shadow-inner my-2">
+    Menunggu game dimulai...
+  </div>
+
+  <!-- Banner Umpan Balik In-Panel P1 (Hidden by default) -->
+  <div id="p1FeedbackBox" class="hidden bg-amber-100 border-2 border-amber-400 p-2 rounded-xl text-xs font-bold text-amber-900 mb-2 text-center animate-bounce">
+    💡 <span id="p1FeedbackText"></span>
+  </div>
+
+  <!-- Tombol Jawaban -->
+  <div id="p1Answers" class="grid grid-cols-2 gap-2.5 h-1/2"></div>
+</div>
+
+    <!-- PANEL PLAYER 2 (KANAN) -->
+<div class="bg-red-100 border-4 border-red-400 rounded-3xl p-3 flex flex-col justify-between shadow-lg relative overflow-hidden">
+  <div class="text-red-900 font-black text-lg flex justify-between items-center">
+    <span>PLAYER 2</span>
+    <span id="p2Status" class="text-xs bg-red-300 text-red-900 px-3 py-1 rounded-full font-bold">Siap</span>
+  </div>
+
+  <!-- Area Soal -->
+  <div id="p2QuestionBox" class="bg-white p-3 rounded-2xl border-2 border-red-200 flex-1 flex items-center justify-center overflow-auto text-center font-extrabold text-gray-800 text-xl shadow-inner my-2">
+    Menunggu game dimulai...
+  </div>
+
+  <!-- Banner Umpan Balik In-Panel P2 (Hidden by default) -->
+  <div id="p2FeedbackBox" class="hidden bg-amber-100 border-2 border-amber-400 p-2 rounded-xl text-xs font-bold text-amber-900 mb-2 text-center animate-bounce">
+    💡 <span id="p2FeedbackText"></span>
+  </div>
+
+  <!-- Tombol Jawaban -->
+  <div id="p2Answers" class="grid grid-cols-2 gap-2.5 h-1/2"></div>
+</div>
+
+  </div>
+
+  <!-- ================= LOGIKA GAME ================= -->
+  <script>
+    // GANTI teks di bawah ini dengan URL Web App dari Langkah 1 Anda!
+const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyFz8BNhcyfhZFpXpf1lmWA6hC_VbFtLW2KIUJzdm2hyUiwI5SuKnPmzekcnQYNNNmp/exec";
+    let questionsP1 = [];
+    let questionsP2 = [];
+    let currentQIndexP1 = 0;
+    let currentQIndexP2 = 0;
+
+    let ropePosition = 0;
+    let scoreP1 = 0;
+    let scoreP2 = 0;
+    let p1Locked = false;
+    let p2Locked = false;
+    let charactersList = [];
+
+    let gameTimer = null;
+    let timeRemaining = 120;
+    let isGameOver = false;
+
+    // Untuk mengelola antrean callback setelah feedback modal ditutup
+    let activeFeedbackCallback = null;
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    
+    function playBeep(freq = 440, type = 'sine', duration = 0.1) {
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.value = freq;
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + duration);
+      osc.stop(audioCtx.currentTime + duration);
+    }
+
+    window.onload = function() {
+  fetch(`${GAS_API_URL}?action=getInitData`)
+    .then(response => response.json())
+    .then(result => {
+      if (result.status === "success") {
+        // Otomatis menjalankan fungsi initSetupModal Anda yang lama
+        initSetupModal(result.data.gameData);
+      } else {
+        console.error("Gagal mengambil data:", result.message);
+      }
+    })
+    .catch(error => {
+      console.error("Error Koneksi API:", error);
+    });
+};
+
+    function closeInfoModal() {
+      document.getElementById('infoModal').classList.add('hidden');
+      document.getElementById('setupModal').classList.remove('hidden');
+    }
+
+    function initSetupModal(data) {
+      populateSelect('selectMapel', data.mapel);
+      populateSelect('selectKelas', data.kelas);
+      populateSelect('selectElemen', data.elemen);
+      
+      charactersList = data.karakter;
+      const selectP1 = document.getElementById('selectP1');
+      const selectP2 = document.getElementById('selectP2');
+      
+      selectP1.innerHTML = '';
+      selectP2.innerHTML = '';
+
+      if (charactersList && charactersList.length > 0) {
+        charactersList.forEach((char, idx) => {
+          selectP1.add(new Option(char.nama, idx));
+          selectP2.add(new Option(char.nama, idx));
+        });
+        selectP2.selectedIndex = Math.min(1, charactersList.length - 1);
+      } else {
+        selectP1.add(new Option("Tim Biru", "default1"));
+        selectP2.add(new Option("Tim Merah", "default2"));
+      }
+    }
+
+    function populateSelect(id, items) {
+      const el = document.getElementById(id);
+      items.forEach(item => {
+        if(item) el.add(new Option(item, item));
+      });
+    }
+
+    function startGame() {
+      const p1Idx = document.getElementById('selectP1').value;
+      const p2Idx = document.getElementById('selectP2').value;
+      if (charactersList[p1Idx]) document.getElementById('imgP1').src = charactersList[p1Idx].avatarP1;
+      if (charactersList[p2Idx]) document.getElementById('imgP2').src = charactersList[p2Idx].avatarP2;
+
+      document.getElementById('setupModal').classList.add('hidden');
+
+      const mapel = document.getElementById('selectMapel').value;
+      const kelas = document.getElementById('selectKelas').value;
+      const elemen = document.getElementById('selectElemen').value;
+
+      google.script.run.withSuccessHandler(onQuestionsLoaded).getQuestions(mapel, kelas, elemen);
+    }
+
+    function shuffleArray(array) {
+      let arr = JSON.parse(JSON.stringify(array));
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function onQuestionsLoaded(data) {
+      if (!data || data.length === 0) {
+        alert("Soal tidak ditemukan untuk filter ini! Silakan ganti pilihan.");
+        document.getElementById('setupModal').classList.remove('hidden');
+        return;
+      }
+      
+      questionsP1 = shuffleArray(data);
+      questionsP2 = shuffleArray(data);
+
+      currentQIndexP1 = 0;
+      currentQIndexP2 = 0;
+      ropePosition = 0;
+      scoreP1 = 0;
+      scoreP2 = 0;
+      isGameOver = false;
+      updateRopeUI();
+
+      startCountdown();
+    }
+
+    function startCountdown() {
+      const overlay = document.getElementById('countdownOverlay');
+      const text = document.getElementById('countdownText');
+      overlay.classList.remove('hidden');
+
+      let count = 3;
+      text.innerText = count;
+      playBeep(600, 'square', 0.15);
+
+      const timer = setInterval(() => {
+        count--;
+        if (count > 0) {
+          text.innerText = count;
+          playBeep(600, 'square', 0.15);
+        } else if (count === 0) {
+          text.innerText = "START!";
+          playBeep(900, 'triangle', 0.3);
+        } else {
+          clearInterval(timer);
+          overlay.classList.add('hidden');
+          renderQuestionForP1();
+          renderQuestionForP2();
+          startMatchTimer();
+        }
+      }, 1000);
+    }
+
+    function startMatchTimer() {
+      timeRemaining = 120;
+      updateTimerDisplay();
+
+      if (gameTimer) clearInterval(gameTimer);
+      
+      gameTimer = setInterval(() => {
+        timeRemaining--;
+        updateTimerDisplay();
+
+        if (timeRemaining <= 0) {
+          clearInterval(gameTimer);
+          handleTimeOut();
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(timeRemaining / 60);
+      const secs = timeRemaining % 60;
+      document.getElementById('timerText').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function handleTimeOut() {
+      if (isGameOver) return;
+      let winnerMsg = "";
+      let winnerName = "";
+
+      if (ropePosition < 0 || scoreP1 > scoreP2) {
+        winnerMsg = "WAKTU HABIS! PLAYER 1 (KIRI) MENANG DENGAN POIN KEUNGGULAN! 🎉";
+        winnerName = "Player 1 (Kiri)";
+      } else if (ropePosition > 0 || scoreP2 > scoreP1) {
+        winnerMsg = "WAKTU HABIS! PLAYER 2 (KANAN) MENANG DENGAN POIN KEUNGGULAN! 🎉";
+        winnerName = "Player 2 (Kanan)";
+      } else {
+        winnerMsg = "WAKTU HABIS! PERTANDINGAN SERI / IMBANG! 🤝";
+        winnerName = "Seri / Imbang";
+      }
+
+      announceWinner(winnerMsg, winnerName);
+    }
+
+    function renderQuestionForP1() {
+      if (isGameOver) return;
+      p1Locked = false;
+      document.getElementById('p1Status').innerText = "Silakan Jawab";
+
+      if (currentQIndexP1 >= questionsP1.length) currentQIndexP1 = 0;
+      const q = questionsP1[currentQIndexP1];
+
+      const qContent = (q.tipeSoal === 'IMAGE') 
+        ? `<img src="${q.soal}" class="max-h-24 object-contain mx-auto rounded-xl">`
+        : q.soal;
+
+      document.getElementById('p1QuestionBox').innerHTML = qContent;
+      renderAnswerButtons('p1Answers', q, 'P1');
+    }
+
+    function renderQuestionForP2() {
+      if (isGameOver) return;
+      p2Locked = false;
+      document.getElementById('p2Status').innerText = "Silakan Jawab";
+
+      if (currentQIndexP2 >= questionsP2.length) currentQIndexP2 = 0;
+      const q = questionsP2[currentQIndexP2];
+
+      const qContent = (q.tipeSoal === 'IMAGE') 
+        ? `<img src="${q.soal}" class="max-h-24 object-contain mx-auto rounded-xl">`
+        : q.soal;
+
+      document.getElementById('p2QuestionBox').innerHTML = qContent;
+      renderAnswerButtons('p2Answers', q, 'P2');
+    }
+
+    function renderAnswerButtons(containerId, q, player) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+
+      let optionsList = [];
+      ['A', 'B', 'C', 'D'].forEach(key => {
+        if (q.pilihan[key]) {
+          optionsList.push({
+            originalKey: key,
+            val: q.pilihan[key],
+            isCorrect: (key === q.kunci)
+          });
+        }
+      });
+
+      optionsList = shuffleArray(optionsList);
+
+      optionsList.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = `w-full h-full p-2 font-extrabold text-xl text-white rounded-2xl border-b-4 transition flex items-center justify-center text-center opt-btn-${idx % 4}`;
+
+        if (q.tipeJawaban === 'IMAGE') {
+          btn.innerHTML = `<img src="${opt.val}" class="max-h-12 object-contain">`;
+        } else {
+          btn.innerText = opt.val;
+        }
+
+        btn.onclick = () => submitAnswer(player, opt.isCorrect, q);
+        container.appendChild(btn);
+      });
+    }
+
+    function submitAnswer(player, isCorrect, currentQuestion) {
+  if (isGameOver || (player === 'P1' && p1Locked) || (player === 'P2' && p2Locked)) return;
+
+  const isP1 = (player === 'P1');
+  const statusEl = document.getElementById(isP1 ? 'p1Status' : 'p2Status');
+  const feedbackBox = document.getElementById(isP1 ? 'p1FeedbackBox' : 'p2FeedbackBox');
+  const feedbackText = document.getElementById(isP1 ? 'p1FeedbackText' : 'p2FeedbackText');
+
+  if (isP1) p1Locked = true;
+  else p2Locked = true;
+
+  if (isCorrect) {
+    statusEl.innerText = "BENAR! ⭕";
+    playBeep(800, 'sine', 0.2);
+    
+    if (isP1) { ropePosition -= 25; scoreP1++; }
+    else { ropePosition += 25; scoreP2++; }
+
+    checkWinCondition();
+
+    setTimeout(() => {
+      if (isP1) { currentQIndexP1++; renderQuestionForP1(); }
+      else { currentQIndexP2++; renderQuestionForP2(); }
+    }, 800);
+
+  } else {
+    statusEl.innerText = "SALAH! ❌";
+    playBeep(200, 'sawtooth', 0.2);
+
+    // Tampilkan pembahasan hanya di panel pemain yang salah
+    const teksPembahasan = currentQuestion.pembahasan || `Jawaban tepat: ${currentQuestion.pilihan[currentQuestion.kunci]}`;
+    feedbackText.innerHTML = teksPembahasan;
+    feedbackBox.classList.remove('hidden');
+
+    // Beri jeda 3.5 detik agar anak membaca, baru ganti soal & sembunyikan umpan balik
+    setTimeout(() => {
+      feedbackBox.classList.add('hidden');
+      if (isP1) { currentQIndexP1++; renderQuestionForP1(); }
+      else { currentQIndexP2++; renderQuestionForP2(); }
+    }, 3500);
+  }
+
+  updateRopeUI();
+}
+
+    function showFeedbackModal(questionData, onComplete) {
+      activeFeedbackCallback = onComplete;
+      
+      const textPembahasan = questionData.pembahasan || 
+        `Kunci jawaban yang benar adalah pilihan yang memuat: <b>${questionData.pilihan[questionData.kunci]}</b>. Pelajari lagi ya!`;
+
+      document.getElementById('feedbackContent').innerHTML = textPembahasan;
+      document.getElementById('feedbackModal').classList.remove('hidden');
+    }
+
+    function closeFeedbackModal() {
+      document.getElementById('feedbackModal').classList.add('hidden');
+      if (activeFeedbackCallback) {
+        activeFeedbackCallback();
+        activeFeedbackCallback = null;
+      }
+    }
+
+    function updateRopeUI() {
+      document.getElementById('tugGroup').style.transform = `translateX(${ropePosition}px)`;
+      document.getElementById('scoreP1').innerText = scoreP1;
+      document.getElementById('scoreP2').innerText = scoreP2;
+    }
+
+    function checkWinCondition() {
+      if (ropePosition <= -120) {
+        announceWinner("PLAYER 1 (KIRI) MENANG! 🎉", "Player 1 (Kiri)");
+      } else if (ropePosition >= 120) {
+        announceWinner("PLAYER 2 (KANAN) MENANG! 🎉", "Player 2 (Kanan)");
+      }
+    }
+
+    function announceWinner(msg, winnerName) {
+      if (isGameOver) return;
+      isGameOver = true;
+      if (gameTimer) clearInterval(gameTimer);
+
+      confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+      playBeep(1000, 'triangle', 0.5);
+
+      const selectP1 = document.getElementById('selectP1');
+      const selectP2 = document.getElementById('selectP2');
+      
+      const gameData = {
+        mapel: document.getElementById('selectMapel').value,
+        kelas: document.getElementById('selectKelas').value,
+        elemen: document.getElementById('selectElemen').value,
+        player1Name: selectP1.options[selectP1.selectedIndex] ? selectP1.options[selectP1.selectedIndex].text : "Player 1",
+        player2Name: selectP2.options[selectP2.selectedIndex] ? selectP2.options[selectP2.selectedIndex].text : "Player 2",
+        scoreP1: scoreP1,
+        scoreP2: scoreP2,
+        winner: winnerName
+      };
+
+      google.script.run.saveGameResult(gameData);
+
+      setTimeout(() => {
+        alert(msg);
+        document.getElementById('setupModal').classList.remove('hidden');
+      }, 500);
+    }
+  </script>
+</body>
+</html>
