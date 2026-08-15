@@ -10,10 +10,10 @@
   <!-- Canvas Confetti CDN -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   
-  <!-- Google Fonts: Fredoka -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
 
   <style>
     * {
@@ -23,6 +23,11 @@
       touch-action: manipulation;
     }
     
+    .font-arabic {
+      font-family: 'Amiri', serif;
+      line-height: 1.8;
+    }
+
     .rope-line {
       height: 14px;
       background: repeating-linear-gradient(45deg, #8B4513, #8B4513 12px, #A0522D 12px, #A0522D 24px);
@@ -48,191 +53,110 @@
   </style>
 </head>
 <body class="bg-amber-100 h-screen w-screen overflow-hidden flex flex-col">
-  <!-- Tambahkan Google Font Amiri untuk Teks Arab yang Jelas -->
-<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
-</style>
-
-<style>
-/* === ANIMASI KARAKTER & AURA === */
-  /* 1. Animasi Gerak Bernapas (Idle) */
-  @keyframes charFloat {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-6px); }
-  }
-  .animate-char-idle {
-    animation: charFloat 2.5s ease-in-out infinite;
-  }
-
-  /* 2. Animasi Menarik Tali saat Jawab BENAR */
-  @keyframes pullSuccess {
-    0% { transform: scale(1) rotate(0deg); }
-    30% { transform: scale(1.15) rotate(-10deg) translateX(-10px); }
-    60% { transform: scale(1.05) rotate(5deg); }
-    100% { transform: scale(1) rotate(0deg); }
-  }
-  .animate-pull {
-    animation: pullSuccess 0.6s ease-in-out;
-  }
-
-  /* 3. Animasi Terseret/Terguncang saat Jawab SALAH */
-  @keyframes stumbleWrong {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(8px) rotate(5deg); }
-    40% { transform: translateX(-6px) rotate(-5deg); }
-    60% { transform: translateX(4px); }
-    80% { transform: translateX(-2px); }
-  }
-  .animate-stumble {
-    animation: stumbleWrong 0.5s ease-in-out;
-  }
-
-  /* 4. Aura Bersinar untuk Player yang Sedang Giliran */
-  .active-turn-glow {
-    filter: drop-shadow(0 0 10px #f59e0b) drop-shadow(0 0 18px #fbbf24);
-  }
-<style>
-  * {
-    font-family: 'Fredoka', cursive, sans-serif;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
-  }
-  
-  /* Class khusus untuk Teks Arab PAI */
-  .font-arabic {
-    font-family: 'Amiri', serif;
-    line-height: 1.8;
-  }
-
-  .rope-line {
-    height: 14px;
-    background: repeating-linear-gradient(45deg, #8B4513, #8B4513 12px, #A0522D 12px, #A0522D 24px);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    border-radius: 6px;
-  }
-
-  .opt-btn-0 { background-color: #ef4444; border-color: #dc2626; box-shadow: 0 5px 0 #b91c1c; }
-  .opt-btn-1 { background-color: #3b82f6; border-color: #2563eb; box-shadow: 0 5px 0 #1d4ed8; }
-  .opt-btn-2 { background-color: #eab308; border-color: #ca8a04; box-shadow: 0 5px 0 #a16207; }
-  .opt-btn-3 { background-color: #22c55e; border-color: #16a34a; box-shadow: 0 5px 0 #15803d; }
-
-  .opt-btn-0:active { box-shadow: 0 1px 0 #b91c1c !important; transform: translateY(4px); }
-  .opt-btn-1:active { box-shadow: 0 1px 0 #1d4ed8 !important; transform: translateY(4px); }
-  .opt-btn-2:active { box-shadow: 0 1px 0 #a16207 !important; transform: translateY(4px); }
-  .opt-btn-3:active { box-shadow: 0 1px 0 #15803d !important; transform: translateY(4px); }
-</style>
 
   <!-- ================= POPUP PETUNJUK AWAL ================= -->
-<div id="infoModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-6 border-8 border-amber-400 text-center relative overflow-hidden">
-    
-    <!-- Badge Icon Header -->
-    <div class="flex flex-col items-center mb-4">
-      <div class="w-16 h-16 bg-amber-100 border-4 border-amber-400 rounded-2xl flex items-center justify-center text-3xl shadow-md mb-2">
-        📜
+  <div id="infoModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg p-6 border-8 border-amber-400 text-center relative overflow-hidden">
+      <div class="flex flex-col items-center mb-4">
+        <div class="w-16 h-16 bg-amber-100 border-4 border-amber-400 rounded-2xl flex items-center justify-center text-3xl shadow-md mb-2">
+          📜
+        </div>
+        <h2 class="text-2xl font-black text-amber-900 tracking-wide uppercase">PETUNJUK PERMAINAN</h2>
       </div>
-      <h2 class="text-2xl font-black text-amber-900 tracking-wide uppercase">PETUNJUK PERMAINAN</h2>
+      
+      <div class="space-y-3 mb-6 text-left">
+        <div class="bg-amber-50 p-3.5 rounded-2xl border border-amber-200 flex items-center space-x-3 shadow-sm">
+          <div class="text-2xl p-2 bg-white rounded-xl shadow-xs">🎯</div>
+          <div>
+            <h4 class="font-bold text-amber-950 text-sm">Tujuan Permainan</h4>
+            <p class="text-xs text-amber-800 leading-snug">Tarik tali ke area tim kamu dengan menjawab soal secepat dan setepat mungkin!</p>
+          </div>
+        </div>
+
+        <div class="bg-amber-50 p-3.5 rounded-2xl border border-amber-200 flex items-center space-x-3 shadow-sm">
+          <div class="text-2xl p-2 bg-white rounded-xl shadow-xs">💡</div>
+          <div>
+            <h4 class="font-bold text-amber-950 text-sm">Belajar dari Kesalahan</h4>
+            <p class="text-xs text-amber-800 leading-snug">Jika menjawab salah, baca petunjuk singkat yang muncul di panel kamu!</p>
+          </div>
+        </div>
+
+        <div class="bg-amber-50 p-3.5 rounded-2xl border border-amber-200 flex items-center space-x-3 shadow-sm">
+          <div class="text-2xl p-2 bg-white rounded-xl shadow-xs">⏳</div>
+          <div>
+            <h4 class="font-bold text-amber-950 text-sm">Batas Waktu</h4>
+            <p class="text-xs text-amber-800 leading-snug">Durasi permainan adalah <b>2 Menit (120 Detik)</b>.</p>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="closeInfoModal()" class="w-full py-4 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-extrabold text-xl rounded-2xl shadow-[0_6px_0_#b45309] active:shadow-[0_2px_0_#b45309] active:translate-y-1 transition">
+        SIAP, LANJUTKAN! ➔
+      </button>
     </div>
-    
-    <!-- List Kartu Petunjuk -->
-    <div class="space-y-3 mb-6 text-left">
-      <div class="bg-amber-50 p-3.5 rounded-2xl border border-amber-200 flex items-center space-x-3 shadow-sm">
-        <div class="text-2xl p-2 bg-white rounded-xl shadow-xs">🎯</div>
-        <div>
-          <h4 class="font-bold text-amber-950 text-sm">Tujuan Permainan</h4>
-          <p class="text-xs text-amber-800 leading-snug">Tarik tali ke area tim kamu dengan menjawab soal secepat dan setepat mungkin!</p>
-        </div>
-      </div>
-
-      <div class="bg-amber-50 p-3.5 rounded-2xl border border-amber-200 flex items-center space-x-3 shadow-sm">
-        <div class="text-2xl p-2 bg-white rounded-xl shadow-xs">💡</div>
-        <div>
-          <h4 class="font-bold text-amber-950 text-sm">Belajar dari Kesalahan</h4>
-          <p class="text-xs text-amber-800 leading-snug">Jika menjawab salah, baca petunjuk singkat yang muncul di panel kamu!</p>
-        </div>
-      </div>
-
-      <div class="bg-amber-50 p-3.5 rounded-2xl border border-amber-200 flex items-center space-x-3 shadow-sm">
-        <div class="text-2xl p-2 bg-white rounded-xl shadow-xs">⏳</div>
-        <div>
-          <h4 class="font-bold text-amber-950 text-sm">Batas Waktu</h4>
-          <p class="text-xs text-amber-800 leading-snug">Durasi permainan adalah <b>2 Menit (120 Detik)</b>.</p>
-        </div>
-      </div>
-    </div>
-
-    <button onclick="closeInfoModal()" class="w-full py-4 bg-amber-500 hover:bg-amber-600 active:bg-amber-700 text-white font-extrabold text-xl rounded-2xl shadow-[0_6px_0_#b45309] active:shadow-[0_2px_0_#b45309] active:translate-y-1 transition">
-      SIAP, LANJUTKAN! ➔
-    </button>
   </div>
-</div>
 
   <!-- ================= POPUP SETTINGS GURU ================= -->
-<div id="setupModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-40 flex items-center justify-center p-4">
-  <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl p-6 border-8 border-amber-400 flex flex-col justify-between">
-    <div>
-      <h2 class="text-3xl font-black text-center text-amber-800 mb-5 uppercase tracking-wide">🎮 PENGATURAN GAME</h2>
-      
-      <div class="space-y-4">
-        <div>
-          <label class="block text-base font-bold text-gray-700 mb-1">📚 Mata Pelajaran:</label>
-          <select id="selectMapel" class="w-full p-3 border-4 border-amber-300 rounded-2xl focus:outline-none focus:border-amber-500 text-base font-bold bg-amber-50 cursor-pointer">
-            <option value="">-- Semua Mata Pelajaran --</option>
-          </select>
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
+  <div id="setupModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-xl p-6 border-8 border-amber-400 flex flex-col justify-between">
+      <div>
+        <h2 class="text-3xl font-black text-center text-amber-800 mb-5 uppercase tracking-wide">🎮 PENGATURAN GAME</h2>
+        
+        <div class="space-y-4">
           <div>
-            <label class="block text-base font-bold text-gray-700 mb-1">🏫 Kelas:</label>
-            <select id="selectKelas" class="w-full p-3 border-4 border-amber-300 rounded-2xl focus:outline-none focus:border-amber-500 text-base font-bold bg-amber-50 cursor-pointer">
-              <option value="">-- Semua Kelas --</option>
+            <label class="block text-base font-bold text-gray-700 mb-1">📚 Mata Pelajaran:</label>
+            <select id="selectMapel" class="w-full p-3 border-4 border-amber-300 rounded-2xl focus:outline-none focus:border-amber-500 text-base font-bold bg-amber-50 cursor-pointer">
+              <option value="">-- Semua Mata Pelajaran --</option>
             </select>
           </div>
-          <div>
-            <label class="block text-base font-bold text-gray-700 mb-1">📖 Elemen / Materi:</label>
-            <select id="selectElemen" class="w-full p-3 border-4 border-amber-300 rounded-2xl focus:outline-none focus:border-amber-500 text-base font-bold bg-amber-50 cursor-pointer">
-              <option value="">-- Semua Elemen --</option>
-            </select>
-          </div>
-        </div>
 
-        <div class="grid grid-cols-2 gap-4 pt-1">
-          <div class="bg-blue-50 p-3 rounded-2xl border-2 border-blue-300 text-center">
-            <label class="block text-sm font-extrabold text-blue-900 mb-1">Player 1 (Kiri)</label>
-            <select id="selectP1" class="w-full p-2 border-2 border-blue-300 rounded-xl text-sm font-bold bg-white mb-1 cursor-pointer"></select>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-base font-bold text-gray-700 mb-1">🏫 Kelas:</label>
+              <select id="selectKelas" class="w-full p-3 border-4 border-amber-300 rounded-2xl focus:outline-none focus:border-amber-500 text-base font-bold bg-amber-50 cursor-pointer">
+                <option value="">-- Semua Kelas --</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-base font-bold text-gray-700 mb-1">📖 Elemen / Materi:</label>
+              <select id="selectElemen" class="w-full p-3 border-4 border-amber-300 rounded-2xl focus:outline-none focus:border-amber-500 text-base font-bold bg-amber-50 cursor-pointer">
+                <option value="">-- Semua Elemen --</option>
+              </select>
+            </div>
           </div>
-          <div class="bg-red-50 p-3 rounded-2xl border-2 border-red-300 text-center">
-            <label class="block text-sm font-extrabold text-red-900 mb-1">Player 2 (Kanan)</label>
-            <select id="selectP2" class="w-full p-2 border-2 border-red-300 rounded-xl text-sm font-bold bg-white mb-1 cursor-pointer"></select>
-          </div>
-        </div>
 
-        <button onclick="startGame()" class="w-full mt-3 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-2xl rounded-2xl shadow-[0_6px_0_#15803d] active:shadow-[0_2px_0_#15803d] active:translate-y-1 transition">
-          🚀 MULAI PERMAINAN
-        </button>
+          <div class="grid grid-cols-2 gap-4 pt-1">
+            <div class="bg-blue-50 p-3 rounded-2xl border-2 border-blue-300 text-center">
+              <label class="block text-sm font-extrabold text-blue-900 mb-1">Player 1 (Kiri)</label>
+              <select id="selectP1" class="w-full p-2 border-2 border-blue-300 rounded-xl text-sm font-bold bg-white mb-1 cursor-pointer"></select>
+            </div>
+            <div class="bg-red-50 p-3 rounded-2xl border-2 border-red-300 text-center">
+              <label class="block text-sm font-extrabold text-red-900 mb-1">Player 2 (Kanan)</label>
+              <select id="selectP2" class="w-full p-2 border-2 border-red-300 rounded-xl text-sm font-bold bg-white mb-1 cursor-pointer"></select>
+            </div>
+          </div>
+
+          <button onclick="startGame()" class="w-full mt-3 py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-2xl rounded-2xl shadow-[0_6px_0_#15803d] active:shadow-[0_2px_0_#15803d] active:translate-y-1 transition">
+            🚀 MULAI PERMAINAN
+          </button>
+        </div>
       </div>
-    </div>
 
-    <!-- FOOTNOTE / CATATAN KAKI -->
-    <div class="mt-5 pt-3 border-t-2 border-gray-100 text-center text-xs text-gray-400 leading-relaxed font-semibold">
-      <p class="text-amber-900 font-extrabold text-xs">🎮 Tarik Cerdas: Game Asesmen PAI Interaktif</p>
-      <p>Media Pembelajaran PAI oleh Tim Modul PAI</p>
-      <p>© 2026 Hak Cipta Dilindungi • KKG PAI Kab. Pasuruan</p>
+      <div class="mt-5 pt-3 border-t-2 border-gray-100 text-center text-xs text-gray-400 leading-relaxed font-semibold">
+        <p class="text-amber-900 font-extrabold text-xs">🎮 Tarik Cerdas: Game Asesmen PAI Interaktif</p>
+        <p>Media Pembelajaran PAI oleh Tim Modul PAI</p>
+        <p>© 2026 Hak Cipta Dilindungi • KKG PAI Kab. Pasuruan</p>
+      </div>
     </div>
   </div>
-</div>
 
-  <!-- ================= POPUP FEEDBACK / UMPAN BALIK INSTAN ================= -->
+  <!-- ================= POPUP FEEDBACK ================= -->
   <div id="feedbackModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-5 border-4 border-amber-400 text-center relative animate-bounce-short">
+    <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-5 border-4 border-amber-400 text-center relative">
       <div id="feedbackIcon" class="text-4xl mb-1">💡</div>
       <h3 id="feedbackTitle" class="text-2xl font-black text-amber-900 mb-2">Hampir Betul!</h3>
-      
-      <div id="feedbackContent" class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-sm font-bold text-gray-700 mb-4 shadow-inner">
-        <!-- Teks pembahasan akan diisi secara dinamis -->
-      </div>
-
-      <button onclick="closeFeedbackModal()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-lg rounded-xl shadow-[0_4px_0_#b45309] active:translate-y-0.5 transition">
+      <div id="feedbackContent" class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-sm font-bold text-gray-700 mb-4 shadow-inner"></div>
+      <button onclick="closeFeedbackModal()" class="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white font-extrabold text-lg rounded-xl shadow-[0_4px_0_#b45309] transition">
         SAYA PAHAM! 👍
       </button>
     </div>
@@ -243,7 +167,7 @@
     <div id="countdownText" class="text-9xl font-black text-amber-400 drop-shadow-[0_10px_0_#b45309] animate-bounce">3</div>
   </div>
 
-  <!-- ================= ARENA TARIK TAMBANG (ATAS) ================= -->
+  <!-- ================= ARENA TARIK TAMBANG ================= -->
   <div class="h-2/5 bg-gradient-to-b from-sky-400 via-sky-200 to-emerald-200 relative overflow-hidden flex flex-col justify-between border-b-8 border-amber-900 shadow-md">
     <div class="absolute top-2 left-10 text-white/70 text-4xl animate-float">☁️</div>
     <div class="absolute top-4 right-16 text-white/70 text-5xl animate-float" style="animation-delay: 1.5s;">☁️</div>
@@ -278,57 +202,51 @@
     </div>
   </div>
 
-  <!-- ================= SPLIT SCREEN SOAL & TOMBOL (BAWAH) ================= -->
+  <!-- ================= SPLIT SCREEN SOAL & TOMBOL ================= -->
   <div class="h-3/5 grid grid-cols-2 gap-3 p-3 bg-amber-200/60">
     
-    <!-- PANEL PLAYER 1 (KIRI) -->
-<div class="bg-blue-100 border-4 border-blue-400 rounded-3xl p-3 flex flex-col justify-between shadow-lg relative overflow-hidden">
-  <div class="text-blue-900 font-black text-lg flex justify-between items-center">
-    <span>PLAYER 1</span>
-    <span id="p1Status" class="text-xs bg-blue-300 text-blue-900 px-3 py-1 rounded-full font-bold">Siap</span>
-  </div>
+    <!-- PANEL PLAYER 1 -->
+    <div class="bg-blue-100 border-4 border-blue-400 rounded-3xl p-3 flex flex-col justify-between shadow-lg relative overflow-hidden">
+      <div class="text-blue-900 font-black text-lg flex justify-between items-center">
+        <span>PLAYER 1</span>
+        <span id="p1Status" class="text-xs bg-blue-300 text-blue-900 px-3 py-1 rounded-full font-bold">Siap</span>
+      </div>
 
-  <!-- Area Soal -->
-  <div id="p1QuestionBox" class="bg-white p-3 rounded-2xl border-2 border-blue-200 flex-1 flex items-center justify-center overflow-auto text-center font-extrabold text-gray-800 text-xl shadow-inner my-2">
-    Menunggu game dimulai...
-  </div>
+      <div id="p1QuestionBox" class="bg-white p-3 rounded-2xl border-2 border-blue-200 flex-1 flex items-center justify-center overflow-auto text-center font-extrabold text-gray-800 text-xl shadow-inner my-2">
+        Menunggu game dimulai...
+      </div>
 
-  <!-- Banner Umpan Balik In-Panel P1 (Hidden by default) -->
-  <div id="p1FeedbackBox" class="hidden bg-amber-100 border-2 border-amber-400 p-2 rounded-xl text-xs font-bold text-amber-900 mb-2 text-center animate-bounce">
-    💡 <span id="p1FeedbackText"></span>
-  </div>
+      <div id="p1FeedbackBox" class="hidden bg-amber-100 border-2 border-amber-400 p-2 rounded-xl text-xs font-bold text-amber-900 mb-2 text-center animate-bounce">
+        💡 <span id="p1FeedbackText"></span>
+      </div>
 
-  <!-- Tombol Jawaban -->
-  <div id="p1Answers" class="grid grid-cols-2 gap-2.5 h-1/2"></div>
-</div>
+      <div id="p1Answers" class="grid grid-cols-2 gap-2.5 h-1/2"></div>
+    </div>
 
-    <!-- PANEL PLAYER 2 (KANAN) -->
-<div class="bg-red-100 border-4 border-red-400 rounded-3xl p-3 flex flex-col justify-between shadow-lg relative overflow-hidden">
-  <div class="text-red-900 font-black text-lg flex justify-between items-center">
-    <span>PLAYER 2</span>
-    <span id="p2Status" class="text-xs bg-red-300 text-red-900 px-3 py-1 rounded-full font-bold">Siap</span>
-  </div>
+    <!-- PANEL PLAYER 2 -->
+    <div class="bg-red-100 border-4 border-red-400 rounded-3xl p-3 flex flex-col justify-between shadow-lg relative overflow-hidden">
+      <div class="text-red-900 font-black text-lg flex justify-between items-center">
+        <span>PLAYER 2</span>
+        <span id="p2Status" class="text-xs bg-red-300 text-red-900 px-3 py-1 rounded-full font-bold">Siap</span>
+      </div>
 
-  <!-- Area Soal -->
-  <div id="p2QuestionBox" class="bg-white p-3 rounded-2xl border-2 border-red-200 flex-1 flex items-center justify-center overflow-auto text-center font-extrabold text-gray-800 text-xl shadow-inner my-2">
-    Menunggu game dimulai...
-  </div>
+      <div id="p2QuestionBox" class="bg-white p-3 rounded-2xl border-2 border-red-200 flex-1 flex items-center justify-center overflow-auto text-center font-extrabold text-gray-800 text-xl shadow-inner my-2">
+        Menunggu game dimulai...
+      </div>
 
-  <!-- Banner Umpan Balik In-Panel P2 (Hidden by default) -->
-  <div id="p2FeedbackBox" class="hidden bg-amber-100 border-2 border-amber-400 p-2 rounded-xl text-xs font-bold text-amber-900 mb-2 text-center animate-bounce">
-    💡 <span id="p2FeedbackText"></span>
-  </div>
+      <div id="p2FeedbackBox" class="hidden bg-amber-100 border-2 border-amber-400 p-2 rounded-xl text-xs font-bold text-amber-900 mb-2 text-center animate-bounce">
+        💡 <span id="p2FeedbackText"></span>
+      </div>
 
-  <!-- Tombol Jawaban -->
-  <div id="p2Answers" class="grid grid-cols-2 gap-2.5 h-1/2"></div>
-</div>
+      <div id="p2Answers" class="grid grid-cols-2 gap-2.5 h-1/2"></div>
+    </div>
 
   </div>
 
   <!-- ================= LOGIKA GAME ================= -->
   <script>
-    // GANTI teks di bawah ini dengan URL Web App dari Langkah 1 Anda!
-const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwQvjeemalMoFfRa8YZzbUn9efob1wTy-GBL0df5YyE7cD2EhQ2tjg03eY9OCrB-tTL/exec";
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwQvjeemalMoFfRa8YZzbUn9efob1wTy-GBL0df5YyE7cD2EhQ2tjg03eY9OCrB-tTL/exec";
+    
     let questionsP1 = [];
     let questionsP2 = [];
     let currentQIndexP1 = 0;
@@ -345,9 +263,6 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwQvjeemalMoFfRa8YZ
     let timeRemaining = 120;
     let isGameOver = false;
 
-    // Untuk mengelola antrean callback setelah feedback modal ditutup
-    let activeFeedbackCallback = null;
-
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
     function playBeep(freq = 440, type = 'sine', duration = 0.1) {
@@ -363,127 +278,116 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwQvjeemalMoFfRa8YZ
       osc.stop(audioCtx.currentTime + duration);
     }
 
+    // --- KETIKA POPUP DAN API PERTAMA KALI DILOAD ---
     window.onload = function() {
-  fetch(`${GAS_API_URL}?action=getFilterOptions`)
-    .then(response => response.json())
-    .then(result => {
-      console.log("Respon dari Sheets:", result);
-      // Ambil data baik dari result.gameData maupun result.data
-      const dataDiterima = result.gameData || result.data || result;
-      
-      if (dataDiterima) {
-        initSetupModal(dataDiterima);
-      } else {
-        console.error("Data kosong dari Sheets");
-      }
-    })
-    .catch(error => {
-      console.error("Error Koneksi API:", error);
-    });
-};
+      fetch(`${GAS_API_URL}?action=getFilterOptions`)
+        .then(response => response.json())
+        .then(result => {
+          const dataDiterima = result.gameData || result.data || result;
+          if (dataDiterima) {
+            initSetupModal(dataDiterima);
+          }
+        })
+        .catch(error => console.error("Error API:", error));
+    };
 
     function closeInfoModal() {
       document.getElementById('infoModal').classList.add('hidden');
       document.getElementById('setupModal').classList.remove('hidden');
     }
 
+    // --- MENGISI DROPDOWN FILTER & AVATAR ---
     function initSetupModal(data) {
-  populateSelect('selectMapel', data.mapel);
-  populateSelect('selectKelas', data.kelas);
-  populateSelect('selectElemen', data.elemen);
-  
-  charactersList = data.karakter;
-  const selectP1 = document.getElementById('selectP1');
-  const selectP2 = document.getElementById('selectP2');
-  
-  selectP1.innerHTML = '';
-  selectP2.innerHTML = '';
+      populateSelect('selectMapel', data.mapel);
+      populateSelect('selectKelas', data.kelas);
+      populateSelect('selectElemen', data.elemen);
+      
+      charactersList = data.karakter || [];
+      const selectP1 = document.getElementById('selectP1');
+      const selectP2 = document.getElementById('selectP2');
+      
+      selectP1.innerHTML = '';
+      selectP2.innerHTML = '';
 
-  if (charactersList && charactersList.length > 0) {
-    charactersList.forEach((char) => {
-      // Menyimpan URL avatarP1 & avatarP2 langsung di atribut elemen Option
-      const opt1 = new Option(char.nama, char.nama);
-      opt1.setAttribute('data-img', char.avatarP1);
-      selectP1.add(opt1);
+      if (charactersList.length > 0) {
+        charactersList.forEach((char) => {
+          const opt1 = new Option(char.nama, char.nama);
+          opt1.setAttribute('data-img', char.avatarP1);
+          selectP1.add(opt1);
 
-      const opt2 = new Option(char.nama, char.nama);
-      opt2.setAttribute('data-img', char.avatarP2);
-      selectP2.add(opt2);
-    });
-    selectP2.selectedIndex = Math.min(1, charactersList.length - 1);
-  } else {
-    selectP1.add(new Option("Tim Biru", "default1"));
-    selectP2.add(new Option("Tim Merah", "default2"));
-  }
-}
+          const opt2 = new Option(char.nama, char.nama);
+          opt2.setAttribute('data-img', char.avatarP2);
+          selectP2.add(opt2);
+        });
+        selectP2.selectedIndex = Math.min(1, charactersList.length - 1);
+      } else {
+        selectP1.add(new Option("Tim Biru", "default1"));
+        selectP2.add(new Option("Tim Merah", "default2"));
+      }
+    }
+
+    function populateSelect(id, items) {
+      const el = document.getElementById(id);
+      if (!el || !items) return;
+      el.innerHTML = '<option value="">-- Semua --</option>';
+      items.forEach(item => {
+        if (item !== null && item !== undefined && item !== "") {
+          el.add(new Option(item, item));
+        }
+      });
+    }
+
+    // --- FUNGSI MEMULAI GAME ---
     function startGame() {
-  const mapel = document.getElementById('selectMapel').value;
-  const kelas = document.getElementById('selectKelas').value;
-  const elemen = document.getElementById('selectElemen').value;
+      const mapel = document.getElementById('selectMapel').value;
+      const kelas = document.getElementById('selectKelas').value;
+      const elemen = document.getElementById('selectElemen').value;
 
-  // =========================================================
-  // 1. UBAH GAMBAR KARAKTER PLAYER 1 & PLAYER 2 SESUAI PILIHAN
-  // =========================================================
-  const selP1 = document.getElementById('selectP1');
-  const selP2 = document.getElementById('selectP2');
+      // 1. PASANG GAMBAR KARAKTER SESUAI DROPDOWN DIPILIH
+      const selP1 = document.getElementById('selectP1');
+      const selP2 = document.getElementById('selectP2');
 
-  if (selP1 && selP2 && selP1.selectedOptions[0]) {
-    const urlP1 = selP1.selectedOptions[0].getAttribute('data-img');
-    const urlP2 = selP2.selectedOptions[0].getAttribute('data-img');
-
-    // Mengganti src gambar avatar P1 dan P2 di arena game
-    const elImgP1 = document.getElementById('avatarP1') || document.getElementById('imgP1') || document.getElementById('charP1Img') || document.querySelector('.player1-avatar');
-    const elImgP2 = document.getElementById('avatarP2') || document.getElementById('imgP2') || document.getElementById('charP2Img') || document.querySelector('.player2-avatar');
-
-    if (elImgP1 && urlP1) elImgP1.src = urlP1;
-    if (elImgP2 && urlP2) elImgP2.src = urlP2;
-  }
-
-  // =========================================================
-  // 2. AMBIL SOAL DARI GOOGLE SHEETS
-  // =========================================================
-  fetch(`${GAS_API_URL}?action=getFilteredQuestions&mapel=${encodeURIComponent(mapel)}&kelas=${encodeURIComponent(kelas)}&elemen=${encodeURIComponent(elemen)}`)
-    .then(response => response.json())
-    .then(result => {
-      let listSoal = result.gameData || result.data || result;
-
-      if (!Array.isArray(listSoal) && listSoal.soal) {
-        listSoal = listSoal.soal;
+      if (selP1 && selP1.selectedOptions[0]) {
+        const urlP1 = selP1.selectedOptions[0].getAttribute('data-img');
+        if (urlP1) document.getElementById('imgP1').src = urlP1;
+      }
+      if (selP2 && selP2.selectedOptions[0]) {
+        const urlP2 = selP2.selectedOptions[0].getAttribute('data-img');
+        if (urlP2) document.getElementById('imgP2').src = urlP2;
       }
 
-      questionsP1 = Array.isArray(listSoal) ? [...listSoal] : [];
-      questionsP2 = Array.isArray(listSoal) ? [...listSoal] : [];
+      // 2. MENGAMBIL SOAL DARI GOOGLE SHEETS
+      fetch(`${GAS_API_URL}?action=getFilteredQuestions&mapel=${encodeURIComponent(mapel)}&kelas=${encodeURIComponent(kelas)}&elemen=${encodeURIComponent(elemen)}`)
+        .then(response => response.json())
+        .then(result => {
+          let listSoal = result.gameData || result.data || result;
+          if (!Array.isArray(listSoal) && listSoal.soal) listSoal = listSoal.soal;
 
-      if (questionsP1.length === 0) {
-        alert("Tidak ada soal untuk filter ini. Silakan pilih kombinasi lain!");
-        return;
-      }
+          if (!Array.isArray(listSoal) || listSoal.length === 0) {
+            alert("Tidak ada soal untuk filter ini. Silakan pilih kombinasi lain!");
+            return;
+          }
 
-      currentQIndexP1 = 0;
-      currentQIndexP2 = 0;
-      scoreP1 = 0;
-      scoreP2 = 0;
+          // ACAK URUTAN SOAL MASING-MASING PLAYER
+          questionsP1 = [...listSoal].sort(() => Math.random() - 0.5);
+          questionsP2 = [...listSoal].sort(() => Math.random() - 0.5);
 
-      // Sembunyikan Modal Pengaturan Game
-      document.getElementById('setupModal').classList.add('hidden');
+          currentQIndexP1 = 0;
+          currentQIndexP2 = 0;
+          scoreP1 = 0;
+          scoreP2 = 0;
+          ropePosition = 0;
+          isGameOver = false;
 
-      // Jalankan fungsi penampil soal bawaan game
-      if (typeof renderQuestion === 'function') {
-        renderQuestion('P1');
-        renderQuestion('P2');
-      } else if (typeof displayQuestions === 'function') {
-        displayQuestions();
-      }
-
-      // Jalankan Timer / Countdown
-      if (typeof startTimer === 'function') startTimer();
-      if (typeof startCountdown === 'function') startCountdown();
-    })
-    .catch(err => {
-      console.error("Gagal memuat soal:", err);
-      alert("Gagal mengambil data soal dari Google Sheets.");
-    });
-}
+          updateRopeUI();
+          document.getElementById('setupModal').classList.add('hidden');
+          startCountdown();
+        })
+        .catch(err => {
+          console.error("Gagal memuat soal:", err);
+          alert("Gagal mengambil data soal dari Google Sheets.");
+        });
+    }
 
     function shuffleArray(array) {
       let arr = JSON.parse(JSON.stringify(array));
@@ -492,27 +396,6 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwQvjeemalMoFfRa8YZ
         [arr[i], arr[j]] = [arr[j], arr[i]];
       }
       return arr;
-    }
-
-    function onQuestionsLoaded(data) {
-      if (!data || data.length === 0) {
-        alert("Soal tidak ditemukan untuk filter ini! Silakan ganti pilihan.");
-        document.getElementById('setupModal').classList.remove('hidden');
-        return;
-      }
-      
-      questionsP1 = shuffleArray(data);
-      questionsP2 = shuffleArray(data);
-
-      currentQIndexP1 = 0;
-      currentQIndexP2 = 0;
-      ropePosition = 0;
-      scoreP1 = 0;
-      scoreP2 = 0;
-      isGameOver = false;
-      updateRopeUI();
-
-      startCountdown();
     }
 
     function startCountdown() {
@@ -545,7 +428,6 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwQvjeemalMoFfRa8YZ
     function startMatchTimer() {
       timeRemaining = 120;
       updateTimerDisplay();
-
       if (gameTimer) clearInterval(gameTimer);
       
       gameTimer = setInterval(() => {
@@ -649,66 +531,46 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwQvjeemalMoFfRa8YZ
     }
 
     function submitAnswer(player, isCorrect, currentQuestion) {
-  if (isGameOver || (player === 'P1' && p1Locked) || (player === 'P2' && p2Locked)) return;
+      if (isGameOver || (player === 'P1' && p1Locked) || (player === 'P2' && p2Locked)) return;
 
-  const isP1 = (player === 'P1');
-  const statusEl = document.getElementById(isP1 ? 'p1Status' : 'p2Status');
-  const feedbackBox = document.getElementById(isP1 ? 'p1FeedbackBox' : 'p2FeedbackBox');
-  const feedbackText = document.getElementById(isP1 ? 'p1FeedbackText' : 'p2FeedbackText');
+      const isP1 = (player === 'P1');
+      const statusEl = document.getElementById(isP1 ? 'p1Status' : 'p2Status');
+      const feedbackBox = document.getElementById(isP1 ? 'p1FeedbackBox' : 'p2FeedbackBox');
+      const feedbackText = document.getElementById(isP1 ? 'p1FeedbackText' : 'p2FeedbackText');
 
-  if (isP1) p1Locked = true;
-  else p2Locked = true;
+      if (isP1) p1Locked = true;
+      else p2Locked = true;
 
-  if (isCorrect) {
-    statusEl.innerText = "BENAR! ⭕";
-    playBeep(800, 'sine', 0.2);
-    
-    if (isP1) { ropePosition -= 25; scoreP1++; }
-    else { ropePosition += 25; scoreP2++; }
+      if (isCorrect) {
+        statusEl.innerText = "BENAR! ⭕";
+        playBeep(800, 'sine', 0.2);
+        
+        if (isP1) { ropePosition -= 25; scoreP1++; }
+        else { ropePosition += 25; scoreP2++; }
 
-    checkWinCondition();
+        checkWinCondition();
 
-    setTimeout(() => {
-      if (isP1) { currentQIndexP1++; renderQuestionForP1(); }
-      else { currentQIndexP2++; renderQuestionForP2(); }
-    }, 800);
+        setTimeout(() => {
+          if (isP1) { currentQIndexP1++; renderQuestionForP1(); }
+          else { currentQIndexP2++; renderQuestionForP2(); }
+        }, 800);
 
-  } else {
-    statusEl.innerText = "SALAH! ❌";
-    playBeep(200, 'sawtooth', 0.2);
+      } else {
+        statusEl.innerText = "SALAH! ❌";
+        playBeep(200, 'sawtooth', 0.2);
 
-    // Tampilkan pembahasan hanya di panel pemain yang salah
-    const teksPembahasan = currentQuestion.pembahasan || `Jawaban tepat: ${currentQuestion.pilihan[currentQuestion.kunci]}`;
-    feedbackText.innerHTML = teksPembahasan;
-    feedbackBox.classList.remove('hidden');
+        const teksPembahasan = currentQuestion.pembahasan || `Jawaban tepat: ${currentQuestion.pilihan[currentQuestion.kunci]}`;
+        feedbackText.innerHTML = teksPembahasan;
+        feedbackBox.classList.remove('hidden');
 
-    // Beri jeda 3.5 detik agar anak membaca, baru ganti soal & sembunyikan umpan balik
-    setTimeout(() => {
-      feedbackBox.classList.add('hidden');
-      if (isP1) { currentQIndexP1++; renderQuestionForP1(); }
-      else { currentQIndexP2++; renderQuestionForP2(); }
-    }, 3500);
-  }
-
-  updateRopeUI();
-}
-
-    function showFeedbackModal(questionData, onComplete) {
-      activeFeedbackCallback = onComplete;
-      
-      const textPembahasan = questionData.pembahasan || 
-        `Kunci jawaban yang benar adalah pilihan yang memuat: <b>${questionData.pilihan[questionData.kunci]}</b>. Pelajari lagi ya!`;
-
-      document.getElementById('feedbackContent').innerHTML = textPembahasan;
-      document.getElementById('feedbackModal').classList.remove('hidden');
-    }
-
-    function closeFeedbackModal() {
-      document.getElementById('feedbackModal').classList.add('hidden');
-      if (activeFeedbackCallback) {
-        activeFeedbackCallback();
-        activeFeedbackCallback = null;
+        setTimeout(() => {
+          feedbackBox.classList.add('hidden');
+          if (isP1) { currentQIndexP1++; renderQuestionForP1(); }
+          else { currentQIndexP2++; renderQuestionForP2(); }
+        }, 3000);
       }
+
+      updateRopeUI();
     }
 
     function updateRopeUI() {
@@ -735,19 +597,6 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwQvjeemalMoFfRa8YZ
 
       const selectP1 = document.getElementById('selectP1');
       const selectP2 = document.getElementById('selectP2');
-      
-      const gameData = {
-        mapel: document.getElementById('selectMapel').value,
-        kelas: document.getElementById('selectKelas').value,
-        elemen: document.getElementById('selectElemen').value,
-        player1Name: selectP1.options[selectP1.selectedIndex] ? selectP1.options[selectP1.selectedIndex].text : "Player 1",
-        player2Name: selectP2.options[selectP2.selectedIndex] ? selectP2.options[selectP2.selectedIndex].text : "Player 2",
-        scoreP1: scoreP1,
-        scoreP2: scoreP2,
-        winner: winnerName
-      };
-
-      google.script.run.saveGameResult(gameData);
 
       setTimeout(() => {
         alert(msg);
