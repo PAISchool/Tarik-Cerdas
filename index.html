@@ -364,14 +364,17 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyM1QaQVlMrIWlKyfwP
     }
 
     window.onload = function() {
-  fetch(`${GAS_API_URL}?action=getInitData`)
+  fetch(`${GAS_API_URL}?action=getFilterOptions`)
     .then(response => response.json())
     .then(result => {
-      if (result.status === "success") {
-        // Otomatis menjalankan fungsi initSetupModal Anda yang lama
-        initSetupModal(result.data.gameData);
+      console.log("Respon dari Sheets:", result);
+      // Ambil data baik dari result.gameData maupun result.data
+      const dataDiterima = result.gameData || result.data || result;
+      
+      if (dataDiterima) {
+        initSetupModal(dataDiterima);
       } else {
-        console.error("Gagal mengambil data:", result.message);
+        console.error("Data kosong dari Sheets");
       }
     })
     .catch(error => {
@@ -416,19 +419,30 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbyM1QaQVlMrIWlKyfwP
     }
 
     function startGame() {
-      const p1Idx = document.getElementById('selectP1').value;
-      const p2Idx = document.getElementById('selectP2').value;
-      if (charactersList[p1Idx]) document.getElementById('imgP1').src = charactersList[p1Idx].avatarP1;
-      if (charactersList[p2Idx]) document.getElementById('imgP2').src = charactersList[p2Idx].avatarP2;
+  const mapel = document.getElementById('selectMapel').value;
+  const kelas = document.getElementById('selectKelas').value;
+  const elemen = document.getElementById('selectElemen').value;
 
+  // Memanggil soal dari Google Sheets via Fetch API
+  fetch(`${GAS_API_URL}?action=getFilteredQuestions&mapel=${encodeURIComponent(mapel)}&kelas=${encodeURIComponent(kelas)}&elemen=${encodeURIComponent(elemen)}`)
+    .then(response => response.json())
+    .then(result => {
+      const dataSoal = result.gameData || result.data || result;
+      
+      // Jalankan fungsi memuat soal ke arena game Anda
+      // (Sesuaikan nama fungsi pemuat soal Anda jika ada, misal: initGame(dataSoal))
+      if (typeof initGame === 'function') {
+        initGame(dataSoal);
+      }
+      
+      // Sembunyikan Modal Pengaturan
       document.getElementById('setupModal').classList.add('hidden');
-
-      const mapel = document.getElementById('selectMapel').value;
-      const kelas = document.getElementById('selectKelas').value;
-      const elemen = document.getElementById('selectElemen').value;
-
-      google.script.run.withSuccessHandler(onQuestionsLoaded).getQuestions(mapel, kelas, elemen);
-    }
+    })
+    .catch(err => {
+      console.error("Gagal memuat soal:", err);
+      alert("Gagal mengambil data soal. Periksa koneksi internet Anda.");
+    });
+}
 
     function shuffleArray(array) {
       let arr = JSON.parse(JSON.stringify(array));
