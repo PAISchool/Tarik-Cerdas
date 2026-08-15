@@ -388,90 +388,96 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwQvjeemalMoFfRa8YZ
     }
 
     function initSetupModal(data) {
-      populateSelect('selectMapel', data.mapel);
-      populateSelect('selectKelas', data.kelas);
-      populateSelect('selectElemen', data.elemen);
-      
-      charactersList = data.karakter;
-      const selectP1 = document.getElementById('selectP1');
-      const selectP2 = document.getElementById('selectP2');
-      
-      selectP1.innerHTML = '';
-      selectP2.innerHTML = '';
+  populateSelect('selectMapel', data.mapel);
+  populateSelect('selectKelas', data.kelas);
+  populateSelect('selectElemen', data.elemen);
+  
+  charactersList = data.karakter;
+  const selectP1 = document.getElementById('selectP1');
+  const selectP2 = document.getElementById('selectP2');
+  
+  selectP1.innerHTML = '';
+  selectP2.innerHTML = '';
 
-      if (charactersList && charactersList.length > 0) {
-        charactersList.forEach((char, idx) => {
-          selectP1.add(new Option(char.nama, idx));
-          selectP2.add(new Option(char.nama, idx));
-        });
-        selectP2.selectedIndex = Math.min(1, charactersList.length - 1);
-      } else {
-        selectP1.add(new Option("Tim Biru", "default1"));
-        selectP2.add(new Option("Tim Merah", "default2"));
-      }
-    }
+  if (charactersList && charactersList.length > 0) {
+    charactersList.forEach((char) => {
+      // Menyimpan URL avatarP1 & avatarP2 langsung di atribut elemen Option
+      const opt1 = new Option(char.nama, char.nama);
+      opt1.setAttribute('data-img', char.avatarP1);
+      selectP1.add(opt1);
 
-    function populateSelect(id, items) {
-      const el = document.getElementById(id);
-      items.forEach(item => {
-        if(item) el.add(new Option(item, item));
-      });
-    }
-
+      const opt2 = new Option(char.nama, char.nama);
+      opt2.setAttribute('data-img', char.avatarP2);
+      selectP2.add(opt2);
+    });
+    selectP2.selectedIndex = Math.min(1, charactersList.length - 1);
+  } else {
+    selectP1.add(new Option("Tim Biru", "default1"));
+    selectP2.add(new Option("Tim Merah", "default2"));
+  }
+}
     function startGame() {
   const mapel = document.getElementById('selectMapel').value;
   const kelas = document.getElementById('selectKelas').value;
   const elemen = document.getElementById('selectElemen').value;
 
-  console.log("Mengambil soal dari Sheets...");
+  // =========================================================
+  // 1. UBAH GAMBAR KARAKTER PLAYER 1 & PLAYER 2 SESUAI PILIHAN
+  // =========================================================
+  const selP1 = document.getElementById('selectP1');
+  const selP2 = document.getElementById('selectP2');
 
-  // Panggil API Apps Script untuk mengambil soal
+  if (selP1 && selP2 && selP1.selectedOptions[0]) {
+    const urlP1 = selP1.selectedOptions[0].getAttribute('data-img');
+    const urlP2 = selP2.selectedOptions[0].getAttribute('data-img');
+
+    // Mengganti src gambar avatar P1 dan P2 di arena game
+    const elImgP1 = document.getElementById('avatarP1') || document.getElementById('imgP1') || document.getElementById('charP1Img') || document.querySelector('.player1-avatar');
+    const elImgP2 = document.getElementById('avatarP2') || document.getElementById('imgP2') || document.getElementById('charP2Img') || document.querySelector('.player2-avatar');
+
+    if (elImgP1 && urlP1) elImgP1.src = urlP1;
+    if (elImgP2 && urlP2) elImgP2.src = urlP2;
+  }
+
+  // =========================================================
+  // 2. AMBIL SOAL DARI GOOGLE SHEETS
+  // =========================================================
   fetch(`${GAS_API_URL}?action=getFilteredQuestions&mapel=${encodeURIComponent(mapel)}&kelas=${encodeURIComponent(kelas)}&elemen=${encodeURIComponent(elemen)}`)
     .then(response => response.json())
     .then(result => {
-      console.log("Respon Soal:", result);
-      
-      // Ambil array soal dari respon
       let listSoal = result.gameData || result.data || result;
 
-      // Jika data terbungkus array/object, pastikan kita ambil list soalnya
       if (!Array.isArray(listSoal) && listSoal.soal) {
         listSoal = listSoal.soal;
       }
 
-      // 1. Simpan soal ke Player 1 dan Player 2
       questionsP1 = Array.isArray(listSoal) ? [...listSoal] : [];
       questionsP2 = Array.isArray(listSoal) ? [...listSoal] : [];
 
       if (questionsP1.length === 0) {
-        alert("Tidak ada soal yang ditemukan untuk kombinasi Filter ini! Silakan pilih filter lain.");
+        alert("Tidak ada soal untuk filter ini. Silakan pilih kombinasi lain!");
         return;
       }
 
-      // 2. Reset status game & skor
       currentQIndexP1 = 0;
       currentQIndexP2 = 0;
       scoreP1 = 0;
       scoreP2 = 0;
-      ropePosition = 0;
 
-      // 3. Sembunyikan Modal Pengaturan Game
+      // Sembunyikan Modal Pengaturan Game
       document.getElementById('setupModal').classList.add('hidden');
 
-      // 4. Jalankan fungsi penampil soal & Timer bawaan game Anda
+      // Jalankan fungsi penampil soal bawaan game
       if (typeof renderQuestion === 'function') {
         renderQuestion('P1');
         renderQuestion('P2');
       } else if (typeof displayQuestions === 'function') {
         displayQuestions();
-      } else if (typeof loadQuestion === 'function') {
-        loadQuestion();
       }
 
-      // Jalankan timer/hitungan mundur jika ada fungsinya
+      // Jalankan Timer / Countdown
       if (typeof startTimer === 'function') startTimer();
       if (typeof startCountdown === 'function') startCountdown();
-      if (typeof initGame === 'function') initGame();
     })
     .catch(err => {
       console.error("Gagal memuat soal:", err);
