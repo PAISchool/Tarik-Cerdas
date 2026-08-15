@@ -423,36 +423,55 @@ const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwQvjeemalMoFfRa8YZ
   const kelas = document.getElementById('selectKelas').value;
   const elemen = document.getElementById('selectElemen').value;
 
+  console.log("Mengambil soal dari Sheets...");
+
+  // Panggil API Apps Script untuk mengambil soal
   fetch(`${GAS_API_URL}?action=getFilteredQuestions&mapel=${encodeURIComponent(mapel)}&kelas=${encodeURIComponent(kelas)}&elemen=${encodeURIComponent(elemen)}`)
     .then(response => response.json())
     .then(result => {
-      console.log("Data Soal diterima dari Sheets:", result);
-      const resData = result.gameData || result.data || result;
+      console.log("Respon Soal:", result);
+      
+      // Ambil array soal dari respon
+      let listSoal = result.gameData || result.data || result;
 
-      // Masukkan array soal ke variabel Player 1 & Player 2
-      if (Array.isArray(resData)) {
-        questionsP1 = [...resData];
-        questionsP2 = [...resData];
-      } else if (resData.questionsP1) {
-        questionsP1 = resData.questionsP1;
-        questionsP2 = resData.questionsP2;
-      } else if (resData.questions) {
-        questionsP1 = resData.questions;
-        questionsP2 = resData.questions;
+      // Jika data terbungkus array/object, pastikan kita ambil list soalnya
+      if (!Array.isArray(listSoal) && listSoal.soal) {
+        listSoal = listSoal.soal;
       }
 
-      // Reset indeks soal & skor awal
+      // 1. Simpan soal ke Player 1 dan Player 2
+      questionsP1 = Array.isArray(listSoal) ? [...listSoal] : [];
+      questionsP2 = Array.isArray(listSoal) ? [...listSoal] : [];
+
+      if (questionsP1.length === 0) {
+        alert("Tidak ada soal yang ditemukan untuk kombinasi Filter ini! Silakan pilih filter lain.");
+        return;
+      }
+
+      // 2. Reset status game & skor
       currentQIndexP1 = 0;
       currentQIndexP2 = 0;
+      scoreP1 = 0;
+      scoreP2 = 0;
+      ropePosition = 0;
 
-      // Panggil fungsi penampil soal (sesuai fungsi yang ada di script Anda)
-      if (typeof renderQuestion === 'function') renderQuestion('P1');
-      if (typeof renderQuestion === 'function') renderQuestion('P2');
-      if (typeof displayQuestions === 'function') displayQuestions();
-      if (typeof resetGame === 'function') resetGame();
-
-      // Sembunyikan Modal Pengaturan Game
+      // 3. Sembunyikan Modal Pengaturan Game
       document.getElementById('setupModal').classList.add('hidden');
+
+      // 4. Jalankan fungsi penampil soal & Timer bawaan game Anda
+      if (typeof renderQuestion === 'function') {
+        renderQuestion('P1');
+        renderQuestion('P2');
+      } else if (typeof displayQuestions === 'function') {
+        displayQuestions();
+      } else if (typeof loadQuestion === 'function') {
+        loadQuestion();
+      }
+
+      // Jalankan timer/hitungan mundur jika ada fungsinya
+      if (typeof startTimer === 'function') startTimer();
+      if (typeof startCountdown === 'function') startCountdown();
+      if (typeof initGame === 'function') initGame();
     })
     .catch(err => {
       console.error("Gagal memuat soal:", err);
